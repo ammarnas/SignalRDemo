@@ -1,4 +1,6 @@
 
+using SignalRDemo.Hubs;
+
 namespace SignalRDemo
 {
     public class Program
@@ -8,7 +10,22 @@ namespace SignalRDemo
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddSignalR(options =>
+            {
+                options.EnableDetailedErrors = true;
+            });
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllHeaders",
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod();
+                    });
+            });
+            
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -30,6 +47,20 @@ namespace SignalRDemo
 
             app.MapControllers();
 
+            app.UseCors("AllowAllHeaders");
+
+            // using in course
+            app.UseRouting();
+
+            app.MapHub<MyHub>("/toostr");
+
+            // if above not work try this:
+            //app.UseEndpoints(endpoints =>
+            //{
+            //    endpoints.MapControllers();
+            //    endpoints.MapHub<MyHub>("/toostr");
+            //});
+             
             app.Run();
         }
     }
